@@ -1,20 +1,24 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.InputSystem;
+using UnityEngine.Events;
 
 public class EnemyController : MonoBehaviour
 {
     Rigidbody2D rb;
     public Transform playerTransform;
     public EnemyAnimation enemyAnimation;
+   
     
     [Header("基本参数")]
     public float normalSpeed;
     public float chaseSpped;
-    public float detectionRange = 0.085f;
+    public float detectionRange = 0.09f;
 
     private void Awake()
     {
+        
         GameObject playerObj = GameObject.Find("player");
         if(playerObj != null)
         {
@@ -43,7 +47,12 @@ public class EnemyController : MonoBehaviour
                 enemyAnimation.PlayerNearMe();
             }
         }
+      
        
     }
-
+    public void PlayerDead()
+    {
+        enemyAnimation.BeDead();
+        //inputControl.Gameplay.Disable();后面咱再研究移动的事
+    }
 }

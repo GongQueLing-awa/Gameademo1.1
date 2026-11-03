@@ -56,7 +56,9 @@ public class Character : MonoBehaviour
         if (currentHealth - attacker.damage > 0)
         {
             currentHealth -= attacker.damage;
+            
             Triggerwudi();
+            
             //执行受伤
             OnTakeDamage?.Invoke(attacker.transform);
         }

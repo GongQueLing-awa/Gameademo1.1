@@ -6,6 +6,8 @@ public class EnemyAnimation : MonoBehaviour
 {
     public Animator anim;
     public bool isAwake=false;
+    public bool isDead;
+ 
     private void Awake()
     {
         anim = GetComponent<Animator>();
@@ -19,7 +21,14 @@ public class EnemyAnimation : MonoBehaviour
 
         }
     }
-
-
+    public void BeDead()
+    {
+        anim.SetBool("isDead", true);
+    }
+    
+    public void BeHurt()
+    {
+        anim.SetTrigger("Hurt");
+    }
 
 }
