@@ -13,7 +13,9 @@ public class EnemyController : MonoBehaviour
     [Header("基本参数")]
     public float normalSpeed;
     public float detectionRange = 8f;
-    private float distanceNear = 3.5f;
+    public float distanceNear = 3.5f;
+    private float lastAttackTime = 0f;
+    public float attackCooldown;
     private void Awake()
     {
         
@@ -36,7 +38,7 @@ public class EnemyController : MonoBehaviour
        
     }
 
-    private void Update()
+    private void Update()//请记得认真阅读以下文章
     {
         if (playerTransform != null) {
             float distance=Vector2.Distance(playerTransform.position, transform.position);
@@ -47,12 +49,13 @@ public class EnemyController : MonoBehaviour
             }
             if (enemyAnimation.isAwake)
             {
-                if (distance < distanceNear)
+                
+                float timeSinceLastAttack= Time.time-lastAttackTime;
+                if (distance < distanceNear&&timeSinceLastAttack>attackCooldown)
                 {
                     enemyAnimation.BeNear();
-
-                }
-                if (!enemyAnimation.isNear && !enemyAnimation.isDead)//bro、怎么加hurt条件不能动比较体面，，，
+                    lastAttackTime = Time.time;
+                }else if (!enemyAnimation.isNear && !enemyAnimation.isDead/*&&timeSinceLastAttack>attackCooldown*/)
                 {
                     MoveToPlayer();
                 }

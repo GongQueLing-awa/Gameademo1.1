@@ -38,14 +38,13 @@ public class EnemyAnimation : MonoBehaviour
     public void BeNear()
     {
        
-        anim.SetBool("isNear", true);
+        anim.SetBool("isNear",true);
         
         isNear=true;
        
     }
     public void FinishNear()
     {
-       
         anim.SetBool("isNear", false);
         isNear = false;
       
