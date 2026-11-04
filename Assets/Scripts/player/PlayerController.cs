@@ -19,7 +19,7 @@ public class PlayerController : MonoBehaviour
     
     private CapsuleCollider2D coll;
     //private AttactController attactController;
-    
+
     [Header("物理参数")]
     public PhysicsMaterial2D normal;
     public PhysicsMaterial2D wall;
@@ -55,7 +55,7 @@ public class PlayerController : MonoBehaviour
    
 private void FixedUpdate()
     {
-        if (!isHurt/*&&!attactController.isAttack*/)   //MD怎么动不了了
+        if (!isHurt/*&&attactController.isAttack!=true*/)   //MD怎么动不了了
         {
             Move();//稳定地运行一下下面的函数
         }

@@ -3717,6 +3717,7 @@ GameObject:
   - component: {fileID: 1073507163}
   - component: {fileID: 1073507166}
   - component: {fileID: 1073507169}
+  - component: {fileID: 1073507170}
   m_Layer: 8
   m_Name: Smallenemy
   m_TagString: Untagged
@@ -3935,7 +3936,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 1073507169}
         m_TargetAssemblyTypeName: EnemyController, Assembly-CSharp
-        m_MethodName: PlayerDead
+        m_MethodName: EnemyDead
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -3973,8 +3974,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   anim: {fileID: 0}
+  shootController: {fileID: 0}
   isAwake: 0
   isDead: 0
+  isNear: 0
 --- !u!95 &1073507167
 Animator:
   serializedVersion: 5
@@ -4010,9 +4013,24 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   playerTransform: {fileID: 949335889}
   enemyAnimation: {fileID: 0}
-  normalSpeed: 0
-  chaseSpped: 0
+  Shoot:
+    m_PersistentCalls:
+      m_Calls: []
+  normalSpeed: 3
   detectionRange: 5
+--- !u!114 &1073507170
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1073507158}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 22018d2ce60991946ab4d58c73ccde69, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  anim: {fileID: 0}
 --- !u!1 &1190748167
 GameObject:
   m_ObjectHideFlags: 0
@@ -4888,6 +4906,7 @@ GameObject:
   - component: {fileID: 1662595094}
   - component: {fileID: 1662595096}
   - component: {fileID: 1662595095}
+  - component: {fileID: 1662595097}
   m_Layer: 0
   m_Name: shoot
   m_TagString: Untagged
@@ -4983,6 +5002,19 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
+--- !u!114 &1662595097
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1662595093}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 22018d2ce60991946ab4d58c73ccde69, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  anim: {fileID: 0}
 --- !u!1 &1727593948
 GameObject:
   m_ObjectHideFlags: 0
