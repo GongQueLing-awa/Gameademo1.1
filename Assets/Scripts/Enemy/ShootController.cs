@@ -126,8 +126,8 @@ public class ShootController : MonoBehaviour
     private Vector3 direction;
 
    [Header("活动范围设置 (X轴和Y轴的最大最小值)")]
-    public float minX = -10f;     // 左边界
-    public float maxX = 10f;      // 右边界
+    public float minX = -90f;     // 左边界
+    public float maxX = 90f;      // 右边界
     public float minY = -5f;      // 下边界
     public float maxY = 5f;       // 上边界
 
@@ -149,16 +149,17 @@ public class ShootController : MonoBehaviour
         if (transform.Find("shoot") != null) { 
             shootOrigin.position= transform.Find("shoot").position;
         }
-      
+
         //  激活子物体（确保它是可见的）
         shootOrigin.gameObject.SetActive(true);
-        Debug.Log("Active");
 
-        isRunning = true;
+
+
         // 计算从子弹指向玩家的方向
+        
+        isRunning = true;
         direction = (player.position - shootOrigin.position).normalized;
         int dir = transform.localScale.x > 0f ? -1 : 1;
-
     }
 
     void Update()
@@ -190,13 +191,15 @@ public class ShootController : MonoBehaviour
         if (currentPos.x < minX || currentPos.x > maxX ||
             currentPos.y < minY || currentPos.y > maxY)
         {
+           
             // 停止跑动
             isRunning = false;
             // 刷新回原位
-           
+            // 隐藏它，等待下一次发射
+            shootOrigin.gameObject.SetActive(false);
             if (transform.Find("shoot") != null)
                 shootOrigin.position = transform.Find("shoot").position;
-            shootOrigin.gameObject.SetActive(false);
+            isRunning = false;
         }
     }
 
@@ -216,13 +219,14 @@ public class ShootController : MonoBehaviour
             // CircleCollider2D col = GetComponent<CircleCollider2D>();
             // if (col != null) col.enabled = false;
 
-
+            isRunning = false;
             // 隐藏它，等待下一次发射
-           
+            shootOrigin.gameObject.SetActive(false);
+
             if (transform.Find("shoot") != null)
                 shootOrigin.position = transform.Find("shoot").position;
 
-            shootOrigin.gameObject.SetActive(false);
+            isRunning = false;
 
         }
     }
