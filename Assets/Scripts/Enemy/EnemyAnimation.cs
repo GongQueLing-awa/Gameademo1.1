@@ -50,8 +50,8 @@ public class EnemyAnimation : MonoBehaviour
       
     }
    
-    public void ShootHeat()//通知爆弹打到了玩家的函数，播放消散动画
-    {
-        shootController.anim.SetTrigger("isTouch");
-    }
+    //public void ShootHeat()//通知爆弹打到了玩家的函数，播放消散动画
+    //{
+    //    shootController.anim.SetTrigger("isTouch");
+    //}
 }

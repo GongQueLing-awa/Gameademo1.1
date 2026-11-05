@@ -1,135 +1,229 @@
-using System.Collections;
-using System.Collections.Generic;
+//using System.Collections;
+//using UnityEngine;
+
+//public class ShootController : MonoBehaviour
+//{
+//    public Animator anim;
+//    public CircleCollider2D circleCollider;
+
+//    [Header("Shoot 飞行参数")]
+//    public GameObject shootPrefab;
+//    public Transform shootOrigin;
+//    public float bulletSpeed ; // 飞行速度（单位/秒）
+//    public float maxDistance = 30f; // 没有相机时的兜底飞行距离
+
+//    private Camera mainCamera;
+
+//    private void Awake()
+//    {
+//        circleCollider = GetComponent<CircleCollider2D>();
+//        mainCamera = Camera.main;
+//    }
+
+//    // 动画事件 ShootFire：smallenemy 战斗动画播放到开枪那一帧时调用
+//    public void ShootFire()
+//    {
+//        if (shootPrefab == null)
+//        {
+//            return;
+//        }
+
+//        // 克隆动画里挂着的 shoot 作为独立飞行体。
+//        // 原对象继续留在 smallenemy 的动画层级里，所以销毁子弹不会影响战斗动画；
+//        // 每次开枪都是新的克隆体，因此可以同时存在多颗子弹。
+//        GameObject bullet = Instantiate(shootPrefab);
+//        bullet.transform.SetParent(null, true); // 脱离 smallenemy，保留世界缩放
+//        bullet.SetActive(true);                 // shoot 在动画里可能是 inactive 的
+
+//        // 从枪口（shoot 当前所在位置）飞出
+//        Transform origin = shootOrigin != null ? shootOrigin : shootPrefab.transform;
+//        bullet.transform.position = origin.position;
+
+//        // shoot 的 worldScale.x 与 smallenemy 的 localScale.x 相反：
+//        // 敌人朝右时 localScale.x = -1，shoot 的 worldScale.x = +1，视觉上同样朝右。
+//        // 所以飞行方向取敌人的视觉朝向（-localScale.x），不能直接拿 shoot.localScale.x。
+//        int dir = transform.localScale.x > 0f ? -1 : 1;
+
+//        StartCoroutine(MoveBullet(bullet, dir));
+//    }
+
+//    // 每颗子弹一个协程：固定速度、固定方向，互不干扰
+//    private IEnumerator MoveBullet(GameObject bullet, int dir)
+//    {
+//        Vector3 startPosition = bullet.transform.position;
+
+//        while (bullet != null)
+//        {
+//            // 沿世界 X 轴水平飞行，不受 smallenemy 翻转缩放的影响
+//            bullet.transform.position += Vector3.right * (dir * bulletSpeed * Time.deltaTime);
+
+//            if (IsCompletelyOutOfView(bullet) ||
+//                (mainCamera == null &&
+//                 Vector3.Distance(bullet.transform.position, startPosition) >= maxDistance))
+//            {
+//                // 只销毁飞行用的克隆体；smallenemy 动画里挂着的 shoot 原对象保持不动
+//                Destroy(bullet);
+//                yield break;
+//            }
+
+//            yield return null;
+//        }
+//    }
+
+//    // 判断 shoot 是否已经完全离开玩家视野（相机画面）
+//    private bool IsCompletelyOutOfView(GameObject bullet)
+//    {
+//        if (mainCamera == null)
+//        {
+//            return false;
+//        }
+
+//        Renderer bulletRenderer = bullet.GetComponent<Renderer>();
+//        if (bulletRenderer == null)
+//        {
+//            return false;
+//        }
+
+//        Bounds bounds = bulletRenderer.bounds;
+//        Vector3 screenMin = mainCamera.WorldToScreenPoint(bounds.min);
+//        Vector3 screenMax = mainCamera.WorldToScreenPoint(bounds.max);
+
+//        // 飞到相机背后
+//        if (screenMin.z < 0f || screenMax.z < 0f)
+//        {
+//            return true;
+//        }
+
+//        float left = Mathf.Min(screenMin.x, screenMax.x);
+//        float right = Mathf.Max(screenMin.x, screenMax.x);
+//        float bottom = Mathf.Min(screenMin.y, screenMax.y);
+//        float top = Mathf.Max(screenMin.y, screenMax.y);
+
+//        // 整个 sprite 都越过某一条屏幕边界，才算“完全”飞出视野
+//        return right < 0f || left > mainCamera.pixelWidth
+//            || top < 0f || bottom > mainCamera.pixelHeight;
+//    }
+//}
+
+
+
+
 using UnityEngine;
-//shoot到时候直接写一个publictransform把shoot拖进来就行的话要不把shoot身上的shootcontroller给ban了，不不不你直接把shootAnimator拖进smallEnemy的ShootController里就行了朋友
-//shoot的检测整普通检测就行，Shoot又不掉血没必要挂Character
+//1.子弹初始坐标跟随shoot
+//2.只变X轴
+//3.不要动画一波完就消失
+
 public class ShootController : MonoBehaviour
 {
+
+    private EnemyController enemyController;
+
+    [Header("发射设置")]
+    public Transform shootOrigin; // 拖拽子物体 shootClone 到这里
+    public float moveSpeed = 5f;  // 子弹移动速度
+    private bool alreadyHit;
     public Animator anim;
-    public CircleCollider2D circleCollider;
+    private Vector3 direction;
 
-    public GameObject shootPrefab;
-    public Transform shootOrigin;
-    public float bulletSpeed = 20f; // 飞行速度（像素/秒）
-    public float maxDistance = 30f; // 飞行最远距离
+   [Header("活动范围设置 (X轴和Y轴的最大最小值)")]
+    public float minX = -10f;     // 左边界
+    public float maxX = 10f;      // 右边界
+    public float minY = -5f;      // 下边界
+    public float maxY = 5f;       // 上边界
 
-    private void Awake()
+    [Header("引用")]
+    public Transform player;      // 拖拽玩家到这里
+
+    private bool isRunning = false; // 标记子弹是否正在跑动
+
+   void Awake()
     {
-        circleCollider = GetComponent<CircleCollider2D>();
+        enemyController = GetComponent<EnemyController>();
+    }
+
+
+    public void ShootFire()
+    {
+        alreadyHit = false;
+        if (shootOrigin == null || player == null) return;
+        if (transform.Find("shoot") != null) { 
+            shootOrigin.position= transform.Find("shoot").position;
+        }
+      
+        //  激活子物体（确保它是可见的）
+        shootOrigin.gameObject.SetActive(true);
+        Debug.Log("Active");
+
+        isRunning = true;
+        // 计算从子弹指向玩家的方向
+        direction = (player.position - shootOrigin.position).normalized;
+        int dir = transform.localScale.x > 0f ? -1 : 1;
 
     }
 
-    public void ShootFire()//通知爆弹移动出枪的函数，记得在EnemyCotroller挂的事件Shoot上挂这个Fire公共函数
+    void Update()
     {
-        anim.SetTrigger("shoot");
-        
+        if (isRunning)
+        {
+            Moveto();
+            CheckRange();
+        }
+    }
 
-       
+   
+    void Moveto()
+    {
+        //// 计算从子弹指向玩家的方向
+        //Vector3 direction = (player.position - shootOrigin.position).normalized;
 
-     }
+        // 移动子物体
+        float moveX = direction.x * moveSpeed * Time.deltaTime;
+        shootOrigin.position += new Vector3(moveX, 0, 0);
+    }
+
+    
+    void CheckRange()
+    {
+        Vector3 currentPos = shootOrigin.position;
+
+        // 只要X或Y坐标超出了你设定的最大/最小值，就算“出界”
+        if (currentPos.x < minX || currentPos.x > maxX ||
+            currentPos.y < minY || currentPos.y > maxY)
+        {
+            // 停止跑动
+            isRunning = false;
+            // 刷新回原位
+           
+            if (transform.Find("shoot") != null)
+                shootOrigin.position = transform.Find("shoot").position;
+            shootOrigin.gameObject.SetActive(false);
+        }
+    }
+
+
+    public void imTrying(Collider2D other)
+    {
+        if (alreadyHit) return;
+
+        // 碰到玩家（玩家在 layer 7）
+        if (other.gameObject.layer == 7)
+        {
+            alreadyHit = true;
+            // 触发你在 Animator 里设好的 isTouch，播放消散动画
+            if (anim != null) anim.SetTrigger("isTouch");
+
+            // 关掉碰撞体，免得消散过程中又碰一次
+            // CircleCollider2D col = GetComponent<CircleCollider2D>();
+            // if (col != null) col.enabled = false;
+
+
+            // 隐藏它，等待下一次发射
+           
+            if (transform.Find("shoot") != null)
+                shootOrigin.position = transform.Find("shoot").position;
+
+            shootOrigin.gameObject.SetActive(false);
+
+        }
+    }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-//if (shootPrefab == null) return;
-// 实例化子弹（在敌人当前的位置生成）
-
-//    GameObject bullet = Instantiate(shootPrefab, shootOrigin.position, shootOrigin.rotation);
-//    bullet.layer = this.gameObject.layer;
-
-//    // 判断发射方向 (根据敌人的朝向)
-//    int direction = transform.localScale.x >= 0 ? -1 : 1;
-
-//    // 启动协程，让子弹动起来
-//    StartCoroutine(MoveBullet(bullet, direction));
-//}
-
-//// 负责让子弹移动并定时销毁
-//private IEnumerator MoveBullet(GameObject bullet, int direction)
-//{
-
-//    Vector3 startPos = bullet.transform.position;
-
-//    while (bullet != null)
-//    {
-//        // 1. 计算每帧应该移动的距离 = 速度 * 时间(每秒帧数平滑) * 方向
-//        bullet.transform.Translate(Vector3.right * bulletSpeed * Time.deltaTime * direction);
-
-//        // 2. 检查是否飞出了最大距离
-//        if (Vector3.Distance(bullet.transform.position, startPos) > maxDistance)
-//        {
-//            Destroy(bullet); // 删除子弹
-//            yield break;     // 退出协程，释放内存
-//        }
-
-//        yield return null; // 等待下一帧
-
-//        Debug.Log("【第一步】ShootFire 函数被成功调用！");
-
-//        // 1. 检查预制体是否为空
-//        if (shootPrefab == null)
-//        {
-//            Debug.LogError("【失败原因】shootPrefab 为空！你没有在 Inspector 里拖入子弹预制体！");
-//            return;
-//        }
-
-//        // 2. 检查发射原点是否为空
-//        if (shootOrigin == null)
-//        {
-//            Debug.LogError("【失败原因】shootOrigin 为空！你没有把子物体 Shoot 拖到 Shoot Origin 槽位里！");
-//            return;
-//        }
-
-//        Debug.Log("【第二步】预制体和发射原点检查通过，准备生成子弹...");
-
-//        // 3. 生成子弹
-//        GameObject bullet = Instantiate(shootPrefab, shootOrigin.position, shootOrigin.rotation);
-
-//        // 4. 打印生成结果
-//        if (bullet != null)
-//        {
-//            bullet.layer = this.gameObject.layer;
-//            Debug.Log("【第三步】子弹生成成功！名称: " + bullet.name + " 位置: " + bullet.transform.position);
-
-//            int direction = transform.localScale.x >= 0 ? 1 : -1;
-//            StartCoroutine(MoveBullet(bullet, direction));
-//        }
-//        else
-//        {
-//            Debug.LogError("【致命错误】Instantiate 返回了空值！请检查你的 bulletPrefab 是否是真正的 Prefab！");
-//        }
-
-
-
-
-
-
-
-

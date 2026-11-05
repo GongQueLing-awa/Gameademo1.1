@@ -9,6 +9,7 @@ public class EnemyController : MonoBehaviour
     Rigidbody2D rb;
     public Transform playerTransform;
     public EnemyAnimation enemyAnimation;
+    public bool coolover;
     public UnityEvent Shoot;
     [Header("基本参数")]
     public float normalSpeed;
@@ -18,11 +19,11 @@ public class EnemyController : MonoBehaviour
     public float attackCooldown;
     private void Awake()
     {
-        
+
         GameObject playerObj = GameObject.Find("player");
-        if(playerObj != null)
+        if (playerObj != null)
         {
-            playerTransform= playerObj.transform;
+            playerTransform = playerObj.transform;
         }
         else
         {
@@ -32,49 +33,56 @@ public class EnemyController : MonoBehaviour
 
 
 
-        enemyAnimation=GetComponent<EnemyAnimation>();
-       
+        enemyAnimation = GetComponent<EnemyAnimation>();
+
         rb = GetComponent<Rigidbody2D>();
-       
+
     }
 
     private void Update()//请记得认真阅读以下文章
     {
-        if (playerTransform != null) {
-            float distance=Vector2.Distance(playerTransform.position, transform.position);
-            if (distance< detectionRange&&!enemyAnimation.isAwake)
+        if (playerTransform != null)
+        {
+            float distance = Vector2.Distance(playerTransform.position, transform.position);
+            if (distance < detectionRange && !enemyAnimation.isAwake)
             {
                 enemyAnimation.PlayerNearMe();
-               
+
             }
             if (enemyAnimation.isAwake)
             {
-                
-                float timeSinceLastAttack= Time.time-lastAttackTime;
-                if (distance < distanceNear&&timeSinceLastAttack>attackCooldown)
+
+                float timeSinceLastAttack = Time.time - lastAttackTime;
+                if (distance < distanceNear && timeSinceLastAttack > attackCooldown)
                 {
                     enemyAnimation.BeNear();
                     lastAttackTime = Time.time;
-                }else if (!enemyAnimation.isNear && !enemyAnimation.isDead/*&&timeSinceLastAttack>attackCooldown*/)
+                    coolover = true;
+                }
+                else if (!enemyAnimation.isNear && !enemyAnimation.isDead/*&&timeSinceLastAttack<attackCooldown*/)//刚刚改了这里
                 {
                     MoveToPlayer();
                 }
+                if(timeSinceLastAttack < attackCooldown)
+                {
+                    coolover=false;
+                }
 
-                
+
             }
         }
-      
-       
+
+
     }
     public void EnemyDead()
     {
         enemyAnimation.BeDead();
-        //inputControl.Gameplay.Disable();后面咱再研究移动的事
+
     }
     public void MoveToPlayer()
     {
         FacePlayer();
-        Vector2 direction=(playerTransform.position - transform.position).normalized;
+        Vector2 direction = (playerTransform.position - transform.position).normalized;
         transform.position = Vector2.MoveTowards(transform.position, playerTransform.position, normalSpeed * Time.deltaTime);//记得问问理解
     }
     public void FacePlayer()
@@ -83,13 +91,13 @@ public class EnemyController : MonoBehaviour
         int faceDir = (int)transform.localScale.x;//临时设立一个初始化变量，用来翻转角色
         if (testDistance > 0)
         {
-            faceDir = 1;//手柄每次移动可能是加0.几的，为了避免人物缩放不合适咱们用if统一框定向左或向右
-        }
-        if (testDistance < 0)
-        {
-            faceDir = -1;//同上
-        }
+            faceDir = 1;
+            if (testDistance < 0)
+            {
+                faceDir = -1;
+            }
 
-        transform.localScale = new Vector3(-faceDir, 1, 1);//应用这个翻转
+            transform.localScale = new Vector3(-faceDir, 1, 1);//应用这个翻转
+        }
     }
 }
