@@ -19,6 +19,6 @@ public class PlayerHurtFinished : StateMachineBehaviour
     // OnStateExit is called when a transition ends and the state machine finishes evaluating this state
     override public void OnStateExit(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
     {
-        animator.GetComponent<PlayerController>().isHurt = false;Debug.Log("IM NOT HRUT!!!");
+        animator.GetComponent<PlayerController>().isHurt = false;
     }
 }

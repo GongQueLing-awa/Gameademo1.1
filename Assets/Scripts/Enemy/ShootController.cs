@@ -1,118 +1,5 @@
-//using System.Collections;
-//using UnityEngine;
-
-//public class ShootController : MonoBehaviour
-//{
-//    public Animator anim;
-//    public CircleCollider2D circleCollider;
-
-//    [Header("Shoot 飞行参数")]
-//    public GameObject shootPrefab;
-//    public Transform shootOrigin;
-//    public float bulletSpeed ; // 飞行速度（单位/秒）
-//    public float maxDistance = 30f; // 没有相机时的兜底飞行距离
-
-//    private Camera mainCamera;
-
-//    private void Awake()
-//    {
-//        circleCollider = GetComponent<CircleCollider2D>();
-//        mainCamera = Camera.main;
-//    }
-
-//    // 动画事件 ShootFire：smallenemy 战斗动画播放到开枪那一帧时调用
-//    public void ShootFire()
-//    {
-//        if (shootPrefab == null)
-//        {
-//            return;
-//        }
-
-//        // 克隆动画里挂着的 shoot 作为独立飞行体。
-//        // 原对象继续留在 smallenemy 的动画层级里，所以销毁子弹不会影响战斗动画；
-//        // 每次开枪都是新的克隆体，因此可以同时存在多颗子弹。
-//        GameObject bullet = Instantiate(shootPrefab);
-//        bullet.transform.SetParent(null, true); // 脱离 smallenemy，保留世界缩放
-//        bullet.SetActive(true);                 // shoot 在动画里可能是 inactive 的
-
-//        // 从枪口（shoot 当前所在位置）飞出
-//        Transform origin = shootOrigin != null ? shootOrigin : shootPrefab.transform;
-//        bullet.transform.position = origin.position;
-
-//        // shoot 的 worldScale.x 与 smallenemy 的 localScale.x 相反：
-//        // 敌人朝右时 localScale.x = -1，shoot 的 worldScale.x = +1，视觉上同样朝右。
-//        // 所以飞行方向取敌人的视觉朝向（-localScale.x），不能直接拿 shoot.localScale.x。
-//        int dir = transform.localScale.x > 0f ? -1 : 1;
-
-//        StartCoroutine(MoveBullet(bullet, dir));
-//    }
-
-//    // 每颗子弹一个协程：固定速度、固定方向，互不干扰
-//    private IEnumerator MoveBullet(GameObject bullet, int dir)
-//    {
-//        Vector3 startPosition = bullet.transform.position;
-
-//        while (bullet != null)
-//        {
-//            // 沿世界 X 轴水平飞行，不受 smallenemy 翻转缩放的影响
-//            bullet.transform.position += Vector3.right * (dir * bulletSpeed * Time.deltaTime);
-
-//            if (IsCompletelyOutOfView(bullet) ||
-//                (mainCamera == null &&
-//                 Vector3.Distance(bullet.transform.position, startPosition) >= maxDistance))
-//            {
-//                // 只销毁飞行用的克隆体；smallenemy 动画里挂着的 shoot 原对象保持不动
-//                Destroy(bullet);
-//                yield break;
-//            }
-
-//            yield return null;
-//        }
-//    }
-
-//    // 判断 shoot 是否已经完全离开玩家视野（相机画面）
-//    private bool IsCompletelyOutOfView(GameObject bullet)
-//    {
-//        if (mainCamera == null)
-//        {
-//            return false;
-//        }
-
-//        Renderer bulletRenderer = bullet.GetComponent<Renderer>();
-//        if (bulletRenderer == null)
-//        {
-//            return false;
-//        }
-
-//        Bounds bounds = bulletRenderer.bounds;
-//        Vector3 screenMin = mainCamera.WorldToScreenPoint(bounds.min);
-//        Vector3 screenMax = mainCamera.WorldToScreenPoint(bounds.max);
-
-//        // 飞到相机背后
-//        if (screenMin.z < 0f || screenMax.z < 0f)
-//        {
-//            return true;
-//        }
-
-//        float left = Mathf.Min(screenMin.x, screenMax.x);
-//        float right = Mathf.Max(screenMin.x, screenMax.x);
-//        float bottom = Mathf.Min(screenMin.y, screenMax.y);
-//        float top = Mathf.Max(screenMin.y, screenMax.y);
-
-//        // 整个 sprite 都越过某一条屏幕边界，才算“完全”飞出视野
-//        return right < 0f || left > mainCamera.pixelWidth
-//            || top < 0f || bottom > mainCamera.pixelHeight;
-//    }
-//}
-
-
-
-
 using UnityEngine;
-//1.子弹初始坐标跟随shoot
-//2.只变X轴
-//3.不要动画一波完就消失
-//4.MD为什么isRunning没启动啊
+
 
 public class ShootController : MonoBehaviour
 {
@@ -145,6 +32,7 @@ public class ShootController : MonoBehaviour
 
     public void ShootFire()
     {
+        
         alreadyHit = false;
         if (shootOrigin == null || player == null) return;
         if (transform.Find("shoot") != null) { 
