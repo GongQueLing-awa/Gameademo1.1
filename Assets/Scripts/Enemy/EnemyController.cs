@@ -92,12 +92,14 @@ public class EnemyController : MonoBehaviour
         if (testDistance > 0)
         {
             faceDir = 1;
-            if (testDistance < 0)
-            {
-                faceDir = -1;
-            }
+
+        }
+         if (testDistance < 0)
+         {
+            faceDir = -1;
+         }
 
             transform.localScale = new Vector3(-faceDir, 1, 1);//应用这个翻转
-        }
+        
     }
 }

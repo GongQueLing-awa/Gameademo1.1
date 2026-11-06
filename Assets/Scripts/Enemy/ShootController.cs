@@ -160,7 +160,7 @@ public class ShootController : MonoBehaviour
         // 计算从子弹指向玩家的方向
         
         isRunning = true;
-        direction = (player.position - shootOrigin.position).normalized;
+        direction = new Vector3(transform.localScale.x>0f?-1f:1f,0f,0f);
         int dir = transform.localScale.x > 0f ? -1 : 1;
     }
 
