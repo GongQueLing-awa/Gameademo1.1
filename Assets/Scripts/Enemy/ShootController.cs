@@ -39,7 +39,7 @@ public class ShootController : MonoBehaviour
             shootOrigin.position= transform.Find("shoot").position;
         }
 
-        shootOrigin.localScale = new Vector3(-Mathf.Abs(shootOrigin.localScale.x), Mathf.Abs(shootOrigin.localScale.y), Mathf.Abs(shootOrigin.localScale.z));
+        shootOrigin.localScale = new Vector3(transform.localScale.x > 0f ? -1f : 1f, Mathf.Abs(shootOrigin.localScale.y), Mathf.Abs(shootOrigin.localScale.z));
         //  激活子物体（确保它是可见的）
         shootOrigin.gameObject.SetActive(true);
 
@@ -103,7 +103,8 @@ public class ShootController : MonoBehaviour
         if (other.gameObject.layer == 7)
         {
             alreadyHit = true;
-            
+
+            other.GetComponent<Character>()?.TakeDamage(GetComponent<Attack>());
 
             // 关掉碰撞体，免得消散过程中又碰一次
             // CircleCollider2D col = GetComponent<CircleCollider2D>();
