@@ -112,6 +112,7 @@ using UnityEngine;
 //1.子弹初始坐标跟随shoot
 //2.只变X轴
 //3.不要动画一波完就消失
+//4.MD为什么isRunning没启动啊
 
 public class ShootController : MonoBehaviour
 {
@@ -126,10 +127,10 @@ public class ShootController : MonoBehaviour
     private Vector3 direction;
 
    [Header("活动范围设置 (X轴和Y轴的最大最小值)")]
-    public float minX = -90f;     // 左边界
-    public float maxX = 90f;      // 右边界
-    public float minY = -5f;      // 下边界
-    public float maxY = 5f;       // 上边界
+    public float minX=-45f ;     // 左边界
+    public float maxX=45f  ;      // 右边界
+    public float minY=-5f ;      // 下边界
+    public float maxY=5f;       // 上边界
 
     [Header("引用")]
     public Transform player;      // 拖拽玩家到这里
@@ -140,7 +141,7 @@ public class ShootController : MonoBehaviour
     {
         enemyController = GetComponent<EnemyController>();
     }
-
+    
 
     public void ShootFire()
     {
@@ -150,6 +151,7 @@ public class ShootController : MonoBehaviour
             shootOrigin.position= transform.Find("shoot").position;
         }
 
+        shootOrigin.localScale = new Vector3(-Mathf.Abs(shootOrigin.localScale.x), Mathf.Abs(shootOrigin.localScale.y), Mathf.Abs(shootOrigin.localScale.z));
         //  激活子物体（确保它是可见的）
         shootOrigin.gameObject.SetActive(true);
 
@@ -194,6 +196,7 @@ public class ShootController : MonoBehaviour
            
             // 停止跑动
             isRunning = false;
+            Debug.Log("stop");
             // 刷新回原位
             // 隐藏它，等待下一次发射
             shootOrigin.gameObject.SetActive(false);
@@ -212,8 +215,7 @@ public class ShootController : MonoBehaviour
         if (other.gameObject.layer == 7)
         {
             alreadyHit = true;
-            // 触发你在 Animator 里设好的 isTouch，播放消散动画
-            if (anim != null) anim.SetTrigger("isTouch");
+            
 
             // 关掉碰撞体，免得消散过程中又碰一次
             // CircleCollider2D col = GetComponent<CircleCollider2D>();
@@ -225,7 +227,7 @@ public class ShootController : MonoBehaviour
 
             if (transform.Find("shoot") != null)
                 shootOrigin.position = transform.Find("shoot").position;
-
+            Debug.Log("stop");
             isRunning = false;
 
         }
