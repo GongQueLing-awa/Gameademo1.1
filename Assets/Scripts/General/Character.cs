@@ -17,11 +17,12 @@ public class Character : MonoBehaviour
     public UnityEvent OnDie;
 
     //private SpriteRenderer spriteRenderer;
-    //private void Awake()
-    //{
-    //    spriteRenderer= GetComponent<SpriteRenderer>();//加到这了
-    //}
-
+    private void Start()
+    {
+        currentHealth = maxHealth;
+        OnHealthChange?.Invoke(this);
+    }
+    public UnityEvent<Character> OnHealthChange;
     private void Update()
     {
         if (wudiIf)
@@ -68,6 +69,10 @@ public class Character : MonoBehaviour
             //西内！！！
             OnDie?.Invoke();
         }
+
+
+        OnHealthChange?.Invoke(this);
+
     }
     public void Triggerwudi()
     {
