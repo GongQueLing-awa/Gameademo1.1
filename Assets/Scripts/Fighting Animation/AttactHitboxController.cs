@@ -11,12 +11,12 @@ public class AttackHitboxController : MonoBehaviour
    public void TurnOnHitbox()   {   
         if (hitbox != null)
         {    
-            hitbox.enabled = true; // 开启碰撞判定
+            hitbox.enabled = true; 
          }
     } 
       public void TurnOffHitbox(){  if (hitbox != null)
         {  
-            hitbox.enabled = false; // 关闭碰撞判定
+            hitbox.enabled = false; 
            }
     }
 }

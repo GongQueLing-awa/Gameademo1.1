@@ -16,7 +16,7 @@ public class Character : MonoBehaviour
     public UnityEvent<Transform> OnTakeDamage;
     public UnityEvent OnDie;
 
-    //private SpriteRenderer spriteRenderer;
+    
     private void Start()
     {
         currentHealth = maxHealth;
@@ -28,14 +28,7 @@ public class Character : MonoBehaviour
         if (wudiIf)
         {
             wudiCounter -= Time.deltaTime;
-            //if (Time.time % 0.2f > 0.1f) {
-            //    spriteRenderer.color = new Color(1f, 1f, 1f, 0.2f);
-
-            //}
-            //else
-            //{
-            //    spriteRenderer.color = new Color(1f, 1f, 1f, 1f);
-            //}
+            
 
 
 
@@ -44,7 +37,7 @@ public class Character : MonoBehaviour
             if (wudiCounter <= 0)
             {
                 wudiIf = false;
-                //spriteRenderer.color = new Color(1f, 1f, 1f, 1f);
+               
             }
         }
     }

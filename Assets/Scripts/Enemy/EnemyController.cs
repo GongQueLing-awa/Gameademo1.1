@@ -39,7 +39,7 @@ public class EnemyController : MonoBehaviour
 
     }
 
-    private void Update()//请记得认真阅读以下文章
+    private void Update()
     {
         if (playerTransform != null)
         {
@@ -83,7 +83,7 @@ public class EnemyController : MonoBehaviour
     {
         FacePlayer();
         Vector2 direction = (playerTransform.position - transform.position).normalized;
-        transform.position = Vector2.MoveTowards(transform.position, playerTransform.position, normalSpeed * Time.deltaTime);//记得问问理解
+        transform.position = Vector2.MoveTowards(transform.position, playerTransform.position, normalSpeed * Time.deltaTime);
     }
     public void FacePlayer()
     {
