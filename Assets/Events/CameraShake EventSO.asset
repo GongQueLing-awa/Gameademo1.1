@@ -9,6 +9,6 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ad972d38b2dc85f41a4bef6414da976d, type: 3}
-  m_Name: CharacterEventSO
+  m_Script: {fileID: 11500000, guid: ca8be9627764c4b4092ee4da516a3347, type: 3}
+  m_Name: CameraShake EventSO
   m_EditorClassIdentifier: 
