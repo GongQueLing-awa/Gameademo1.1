@@ -34,7 +34,7 @@ namespace MyGame.UI
 
         // 常量定义，避免魔术字符串
         private static readonly int k_isBookParam = Animator.StringToHash("isBook");
-        private const float k_animationTransitionDelay = 0.5f;
+        private const float k_animationTransitionDelay = 0.45f;
 
         #region MonoBehaviour Methods
 
@@ -150,7 +150,6 @@ namespace MyGame.UI
                 // 等待一帧让 Animator 在激活状态下完成内部初始化
                 yield return null;
 
-                Debug.Log($"[BookController] 设置 isBook 为 true. UpdateMode: {m_bookAnimator.updateMode}");
                 m_bookAnimator.SetBool("isBook", true);
             }
         }
@@ -169,7 +168,6 @@ namespace MyGame.UI
             if (m_bookAnimator != null)
             {
                 m_bookAnimator.updateMode = AnimatorUpdateMode.UnscaledTime;
-                Debug.Log("[BookController] 设置 isBook 为 false");
                 m_bookAnimator.SetBool("isBook", false);
             }
 
