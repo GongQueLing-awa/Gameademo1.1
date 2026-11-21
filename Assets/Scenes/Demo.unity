@@ -135,7 +135,7 @@ GameObject:
   - component: {fileID: 49205455}
   m_Layer: 1
   m_Name: tabletbig
-  m_TagString: Untagged
+  m_TagString: interactable
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -503,7 +503,7 @@ GameObject:
   - component: {fileID: 74153397}
   m_Layer: 1
   m_Name: tabletsmall
-  m_TagString: Untagged
+  m_TagString: interactable
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -3480,7 +3480,7 @@ GameObject:
   - component: {fileID: 804659320}
   m_Layer: 1
   m_Name: tabletsmall
-  m_TagString: Untagged
+  m_TagString: interactable
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -10058,7 +10058,7 @@ GameObject:
   - component: {fileID: 1932264334}
   m_Layer: 1
   m_Name: Tablettiny
-  m_TagString: Untagged
+  m_TagString: interactable
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -12152,7 +12152,7 @@ GameObject:
   - component: {fileID: 1994451435}
   m_Layer: 1
   m_Name: Tablettiny
-  m_TagString: Untagged
+  m_TagString: interactable
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
