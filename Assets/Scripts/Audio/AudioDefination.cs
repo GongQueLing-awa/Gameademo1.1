@@ -4,15 +4,24 @@ using UnityEngine;
 
 public class AudioDefination : MonoBehaviour
 {
-    // Start is called before the first frame update
-    void Start()
+    public PlayAudioEventSO playAudioEvent;
+    public AudioClip audioClip;
+    public bool playOnEnable;
+
+    private void OnEnable()
     {
-        
+        if (playOnEnable)
+        {
+           PlayAudioClip();
+        }
     }
 
-    // Update is called once per frame
-    void Update()
+    private void PlayAudioClip()
     {
-        
+        playAudioEvent.RaiseEvent(audioClip);
     }
+
+
+
+
 }

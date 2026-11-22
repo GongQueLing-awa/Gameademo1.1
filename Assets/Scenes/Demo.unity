@@ -6649,6 +6649,8 @@ GameObject:
   - component: {fileID: 1073507163}
   - component: {fileID: 1073507166}
   - component: {fileID: 1073507169}
+  - component: {fileID: 1073507171}
+  - component: {fileID: 1073507173}
   m_Layer: 8
   m_Name: Smallenemy
   m_TagString: Untagged
@@ -6999,6 +7001,33 @@ MonoBehaviour:
   minY: -5
   maxY: 5
   player: {fileID: 0}
+--- !u!114 &1073507171
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1073507158}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5834fa1f15ecdbc4c9151c8c3fffa20f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &1073507173
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1073507158}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6f377514010f78442988b8c11ea0597c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  playAudioEvent: {fileID: 11400000, guid: fe79cbd1b42b62c42ba835d53642aa39, type: 2}
+  audioClip: {fileID: 8300000, guid: bb6cdd13aeb95f743847b1cd460889bc, type: 3}
+  playOnEnable: 0
 --- !u!1 &1190748167
 GameObject:
   m_ObjectHideFlags: 0

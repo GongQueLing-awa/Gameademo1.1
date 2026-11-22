@@ -5,6 +5,7 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.Scripting.APIUpdating;
 
+
 public class PlayerController : MonoBehaviour
 {
     public PlayerInputControl inputControl;
@@ -16,7 +17,9 @@ public class PlayerController : MonoBehaviour
     public float hurtForce;
     public bool isHurt=false;
     public bool isDead;
-    
+    public AudioClip jumpAudio;
+    public AudioSource audioSource;
+
     private CapsuleCollider2D coll;
    
 
@@ -29,7 +32,7 @@ public class PlayerController : MonoBehaviour
         coll = GetComponent<CapsuleCollider2D>();
         inputControl = new PlayerInputControl();
         inputControl.Gameplay.Jump.started += Jump;
-     
+        
 
     }
 
@@ -79,7 +82,10 @@ private void FixedUpdate()
     {
         if (physicalCheck.isGround)
         {
+
             rb.AddForce(transform.up * jumpForce, ForceMode2D.Impulse);
+            audioSource.PlayOneShot(jumpAudio);
+
         }
         
     }
