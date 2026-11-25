@@ -1,3 +1,4 @@
+using JetBrains.Annotations;
 using UnityEngine;
 using UnityEngine.Audio;
 public class AudioManager : MonoBehaviour
@@ -6,10 +7,14 @@ public class AudioManager : MonoBehaviour
     public PlayAudioEventSO BGMAudioEvent;
     public PlayAudioEventSO FxAudioEvent;
 
+    public FloatEventSO volumeEventForBGM;
+    public FloatEventSO volumeEventForFX;
+
     [Header("奇妙小组件")]
     public AudioSource BGMSource;
     public AudioSource FXSource;
     public AudioMixer mixer;
+    
 
     // 用 Awake 订阅（早于所有 OnEnable）：
     // 保证场景里 playOnEnable 的 AudioDefination 抛事件时，这里已经在监听
@@ -27,6 +32,17 @@ public class AudioManager : MonoBehaviour
             FxAudioEvent.OnEventRaised -= PlayFX;
             FxAudioEvent.OnEventRaised += PlayFX;
         }
+
+        if (volumeEventForFX != null)
+        {
+            volumeEventForFX.OnEventRaised -= SetFXVolume;
+            volumeEventForFX.OnEventRaised += SetFXVolume;
+        }
+        if (volumeEventForBGM != null)
+        {
+            volumeEventForBGM.OnEventRaised -= SetBGMVolume;
+            volumeEventForBGM.OnEventRaised += SetBGMVolume;
+        }
     }
 
     // SO 是资产，不会随场景销毁：不退订就会一直握着已销毁的 AudioManager，形成僵尸订阅
@@ -41,6 +57,17 @@ public class AudioManager : MonoBehaviour
         {
             FxAudioEvent.OnEventRaised -= PlayFX;
         }
+
+        if (volumeEventForFX != null)
+        {
+            volumeEventForFX.OnEventRaised -= SetFXVolume;
+        }
+        if (volumeEventForBGM != null)
+        {
+            volumeEventForBGM.OnEventRaised -= SetBGMVolume;
+        }
+
+        
     }
 
     // 播放 BGM：同一首正在播时不打断，换曲时切 clip 并保持循环
@@ -71,4 +98,30 @@ public class AudioManager : MonoBehaviour
 
         FXSource.PlayOneShot(audioClip);
     }
+
+    // 设置音量：根据事件参数调整音效
+    private void SetFXVolume(float amount)
+    {
+        if (mixer == null)
+        {
+            return;
+        }
+
+        mixer.SetFloat("FXVolume", amount*100-80);
+    }
+
+
+     private void SetBGMVolume(float amount)
+    {
+        if (mixer == null)
+        {
+            return;
+        }
+
+        mixer.SetFloat("BGMVolume", amount*100-80);
+    }
 }
+
+
+
+   

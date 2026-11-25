@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using UnityEngine;
+using UnityEngine.Audio;
 using UnityEngine.UI;
 using TMPro;
 
@@ -52,6 +53,19 @@ namespace MyGame.UI
         [Header("动画配置")]
         [Tooltip("大书本上的 Animator 组件")]
         [SerializeField] private Animator bookAnimator;
+
+
+        [Header("BGM滑块")]
+        [Tooltip("SettingPage 里的 BGMSlider，留空就不刷新")]
+        [SerializeField] private Slider bgmSlider;
+
+
+        [Header("音效滑块")]
+        [Tooltip("SettingPage 里的 FXSlider，留空就不刷新")]
+        [SerializeField] private Slider fxSlider;
+
+        [Tooltip("混音器，和 AudioManager 上拖的是同一个")]
+        [SerializeField] private AudioMixer audioMixer;
 
         // 动画参数名的哈希值，用来告诉动画"打开/关闭"
         private static readonly int isBookHash = Animator.StringToHash("isBook");
@@ -241,7 +255,36 @@ namespace MyGame.UI
         {
             // 每次打开时，先确保显示的是上一次退出时的页面
             UpdatePageVisibility();
+
+            // 点书本图标的同时，把音效滑块刷新成混音器里的真实音量
+            RefreshFxSlider();
+            RefreshBgmSlider();
+
             StartCoroutine(OpenBookCo());
+        }
+
+        // 从混音器读 FXVolume 的当前 dB，按 AudioManager 的换算法则反推成 0~1，赋给滑块
+        private void RefreshFxSlider()
+        {
+            if (fxSlider == null || audioMixer == null) return;
+
+            float db;
+            if (!audioMixer.GetFloat("FXVolume", out db)) return;
+
+            // AudioManager 里是 dB = value * 100 - 80，这里反过来：value = (dB + 80) / 100
+            fxSlider.value = Mathf.Clamp01((db + 80f) / 100f);
+        }
+
+        // 从混音器读 BGMVolume 的当前 dB，按 AudioManager 的换算法则反推成 0~1，赋给滑块
+        private void RefreshBgmSlider()
+        {
+            if (bgmSlider == null || audioMixer == null) return;
+
+            float db;
+            if (!audioMixer.GetFloat("BGMVolume", out db)) return;
+
+            // AudioManager 里是 dB = value * 100 - 80，这里反过来：value = (dB + 80) / 100
+            bgmSlider.value = Mathf.Clamp01((db + 80f) / 100f);
         }
 
         private IEnumerator OpenBookCo()
