@@ -18,7 +18,7 @@ public class PlayerController : MonoBehaviour
     public bool isHurt=false;
     public bool isDead;
     public AudioClip jumpAudio;
-    public AudioSource audioSource;
+    public PlayAudioEventSO fxAudioEvent;
 
     private CapsuleCollider2D coll;
    
@@ -44,6 +44,18 @@ public class PlayerController : MonoBehaviour
     private void OnDisable()
     {
         inputControl.Disable();
+    }
+
+    private void OnDestroy()
+    {
+        // 退订并释放自己创建输入实例，避免残留订阅和原生资源
+        if (inputControl == null)
+        {
+            return;
+        }
+
+        inputControl.Gameplay.Jump.started -= Jump;
+        inputControl.Dispose();
     }
 
 
@@ -84,7 +96,12 @@ private void FixedUpdate()
         {
 
             rb.AddForce(transform.up * jumpForce, ForceMode2D.Impulse);
-            audioSource.PlayOneShot(jumpAudio);
+
+            // 统一走 FX 事件通道，由 AudioManager 负责真正播放
+            if (fxAudioEvent != null && jumpAudio != null)
+            {
+                fxAudioEvent.RaiseEvent(jumpAudio);
+            }
 
         }
         

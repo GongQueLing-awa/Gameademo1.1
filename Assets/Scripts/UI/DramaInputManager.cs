@@ -18,6 +18,9 @@ namespace MyGame.UI
         [Tooltip("答案正确且词条已解锁时播放的音效")]
         public AudioClip correctSound;
 
+        [Tooltip("音效事件通道（拖入 FX AudioEventSO）")]
+        public PlayAudioEventSO fxAudioEvent;
+
         [Tooltip("失败文本模板：代码会按它给每个按钮各复制一份，模板自己不会显示")]
         public TMP_Text failText;
 
@@ -39,9 +42,6 @@ namespace MyGame.UI
         // 当前鼠标停在哪个按钮上（用来跟鼠标显示提示框），不在按钮上时是 null
         private DramaInputButton hoveredButton;
 
-        // 播音效用的播放器，Awake 里自动加好，不用手动挂
-        private AudioSource soundPlayer;
-
         // 翻页控制器，用来订阅翻页事件
         private DramaPageController pageController;
 
@@ -49,17 +49,13 @@ namespace MyGame.UI
         // 等翻到对应页（且词条已解锁）时再补判定
         private List<DramaInputButton> pendingButtons = new List<DramaInputButton>();
 
-        // 每个按钮各自的一份失败文本：按钮 -> 它的文本
+      
         // 这样 A 按钮的失败文本不会被 B 按钮的操作清掉
         private Dictionary<DramaInputButton, TMP_Text> buttonFailTexts
             = new Dictionary<DramaInputButton, TMP_Text>();
 
         private void Awake()
         {
-            // 让 Unity 自动给这个物体加一个音频播放器组件
-            soundPlayer = gameObject.AddComponent<AudioSource>();
-            soundPlayer.playOnAwake = false; // 不要一进场就自己响
-
             if (inputBox != null)
             {
                 // 在输入框里按下回车时，执行 Judge 方法
@@ -456,9 +452,10 @@ namespace MyGame.UI
         // 判定成功后的统一动作：播音效、收起这个按钮自己的失败文本、清输入框、收起输入框
         private void Succeed(DramaInputButton button)
         {
-            if (correctSound != null)
+            // 统一走 FX 事件通道，由 AudioManager 负责真正播放
+            if (fxAudioEvent != null && correctSound != null)
             {
-                soundPlayer.PlayOneShot(correctSound);
+                fxAudioEvent.RaiseEvent(correctSound);
             }
 
             HideFailText(button);

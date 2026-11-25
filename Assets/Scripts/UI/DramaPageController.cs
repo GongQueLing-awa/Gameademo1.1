@@ -36,7 +36,7 @@ namespace MyGame.UI
         {
             FindPagesAndTexts();
             FindButtons();
-            MoveArrowsToFront();
+            MoveArrowsToFront();// 保险咱把箭头放到最后，保证能点到
         }
 
         private void OnEnable()

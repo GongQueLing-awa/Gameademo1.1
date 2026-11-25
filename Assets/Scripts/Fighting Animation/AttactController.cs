@@ -25,6 +25,18 @@ public class AttactController : MonoBehaviour
         inputControl.Disable();
     }
 
+    private void OnDestroy()
+    {
+        // 退订并释放自己创建输入实例，避免残留订阅和原生资源
+        if (inputControl == null)
+        {
+            return;
+        }
+
+        inputControl.Gameplay.Attack.started -= PlayerAttack;
+        inputControl.Dispose();
+    }
+
     private void PlayerAttack(InputAction.CallbackContext obj)
     {
         isAttack = true;

@@ -60,15 +60,15 @@ namespace MyGame.UI
         private const float animationDelay = 0.45f;
 
         private BookState lastState = BookState.Drama;
-        private GameObject[] allPages;
-        private Button[] allTags;
-        private int[] originalTagIndices;
+        private GameObject[] allPages;// 三个页面对象，分别对应 drama、magic、setting
+        private Button[] allTags;// 三个页签按钮对象，分别对应 drama、magic、setting
+        private int[] originalTagIndices;//记位置用的数组
 
         #region MonoBehaviour Methods
 
         private void Awake()
         {
-            // 把三个页面和三个页签放进数组，方便后面循环处理
+            
             allPages = new GameObject[] { dramaPages, magicPages, settingPages };
             allTags = new Button[] { tagDrama, tagMagic, tagSetting };
 
@@ -193,15 +193,15 @@ namespace MyGame.UI
                     allPages[i].SetActive(isActive);
                 }
 
-                // 2. 层级排序准备：先将所有非激活 Tag 移到最顶层区域
+                // 2. 层级排序准备：先将所有非激活 Tag 移到最顶层区域（视觉最底端）
                 if (!isActive)
                 {
                     allTags[i].transform.SetAsFirstSibling();
                 }
             }
 
-            // 3. 将 Papers2 设置为第二层（从上往下数）
-            // 先将其设为最顶层，此时它在所有非激活 Tag 之上
+            // 3. 将 Papers2 设置为第二层（视觉上从上往下数）
+            // 先将其设为最顶层（还是视觉上的），此时它在所有非激活 Tag 之上
             papers2.SetAsLastSibling();
 
             // 获取当前总子物体数，将其索引减 1，使其变为从上往下数第二层
@@ -214,7 +214,7 @@ namespace MyGame.UI
                 allTags[activeIndex].transform.SetAsLastSibling();
             }
 
-            // 最终视觉层级（从上到下）：非激活Tags -> Papers2 (第二层) -> ... -> 激活Tag (最底层)
+            
         }
 
         /// <summary>
