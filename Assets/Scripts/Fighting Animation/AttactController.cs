@@ -2,11 +2,15 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using MyGame.UI;
 
 public class AttactController : MonoBehaviour
 {
     private AttactAnimation attactAnimation;
     public bool isAttack;
+
+    // 攻击技能是否已经通过石碑谜题解锁。默认 false = 锁住
+    public static bool attackUnlocked = false;
 
     public PlayerInputControl inputControl;
     private void Awake()
@@ -39,6 +43,12 @@ public class AttactController : MonoBehaviour
 
     private void PlayerAttack(InputAction.CallbackContext obj)
     {
+        // 玩家正在剧情里打字时，忽略攻击键
+        if (DramaInputManager.isTyping) return;
+
+        // 石碑谜题还没解锁攻击技能时，按攻击键没反应
+        if (!attackUnlocked) return;
+
         isAttack = true;
         attactAnimation.PlayerAttack();
         

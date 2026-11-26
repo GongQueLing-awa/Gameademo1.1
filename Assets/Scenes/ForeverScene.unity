@@ -6689,6 +6689,37 @@ MonoBehaviour:
   tooltipPanel: {fileID: 72126337}
   tooltipText: {fileID: 302083198}
   tooltipOffset: {x: 0, y: -240}
+--- !u!1 &796185095
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 796185096}
+  m_Layer: 7
+  m_Name: Lightpoint
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &796185096
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 796185095}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0.2, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 949335889}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &797195282
 GameObject:
   m_ObjectHideFlags: 0
@@ -7551,6 +7582,7 @@ GameObject:
   - component: {fileID: 949335892}
   - component: {fileID: 949335894}
   - component: {fileID: 949335897}
+  - component: {fileID: 949335898}
   m_Layer: 7
   m_Name: player
   m_TagString: Untagged
@@ -7652,6 +7684,7 @@ Transform:
   m_Children:
   - {fileID: 470104605}
   - {fileID: 1936442746}
+  - {fileID: 796185096}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!70 &949335890
@@ -7876,6 +7909,41 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5834fa1f15ecdbc4c9151c8c3fffa20f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &949335898
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 949335886}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 61a23cf29d02d7a47acde28847096942, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  playerLight: {fileID: 796185096}
+  answers:
+  - skillName: "\u98DE\u7FD4"
+    edges:
+    - Tabletsmall-Tabletbig
+    - Tabletbig-Tablettiny
+    - Tablettiny-Tabletsmall
+  - skillName: "\u653B\u51FB"
+    edges:
+    - Tabletsmall-Tabletbig
+    - Tabletbig-Tablettiny
+    - Tablettiny-Tabletsmall
+    - Tablettiny-Tabletbig1
+    - Tabletbig1-Tablettiny1
+    - Tablettiny1-Tabletsmall1
+  successText: {fileID: 0}
+  failText: {fileID: 0}
+  repeatText: {fileID: 0}
+  tipShowTime: 2
+  lineWidth: 0.08
+  lineSortingLayer: bottom
+  lineSortingOrder: 1
+  lineMaterial: {fileID: 0}
 --- !u!1 &981740829
 GameObject:
   m_ObjectHideFlags: 0

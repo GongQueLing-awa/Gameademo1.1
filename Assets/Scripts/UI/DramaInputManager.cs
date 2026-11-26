@@ -36,6 +36,10 @@ namespace MyGame.UI
         [Tooltip("提示框相对鼠标的偏移，默认出现在鼠标下方一点")]
         public Vector2 tooltipOffset = new Vector2(0f, -40f);
 
+        // 全局标记：玩家现在是不是正在输入文字。
+        // 别的脚本（比如攻击）可以直接读它，输入时就不再响应按键。
+        public static bool isTyping;
+
         // 当前正在为哪个按钮输入，没输入时是 null
         private DramaInputButton currentButton;
 
@@ -131,6 +135,9 @@ namespace MyGame.UI
             {
                 pageController.pageChanged -= OnPageChanged;
             }
+
+            // 书本关闭时如果在输入，也要把这个标记复位，否则攻击会一直被锁着
+            isTyping = false;
         }
 
         // 按钮被点击时调用（由 DramaInputButton 传进来）：打开输入框
@@ -144,6 +151,8 @@ namespace MyGame.UI
 
             currentButton = button;
             inputBox.gameObject.SetActive(true); // 显示输入框
+
+            isTyping = true; // 告诉其他脚本：现在在打字，别响应游戏按键
             inputBox.text = "";                  // 清掉上一次写的内容
             inputBox.ActivateInputField();       // 聚焦输入框，让玩家直接打字
         }
@@ -283,6 +292,8 @@ namespace MyGame.UI
         private void CloseInput()
         {
             currentButton = null;
+            isTyping = false; // 输入结束，恢复游戏按键响应
+
             if (inputBox != null)
             {
                 inputBox.gameObject.SetActive(false);
