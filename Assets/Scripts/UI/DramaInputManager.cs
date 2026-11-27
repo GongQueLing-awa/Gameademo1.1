@@ -248,6 +248,61 @@ namespace MyGame.UI
             }
         }
 
+        // 给别的脚本用的统一解锁入口：按拼音解锁词条，同拼音的跨页一起解锁。
+        // 以后要加新解锁方式，只要在满足条件的地方写一句 DramaInputManager.UnlockWord("拼音") 就行。
+        public static void UnlockWord(string pinyin)
+        {
+            // 书本可能关着，所以连未激活的物体一起找
+            DramaInputManager manager = FindAnyObjectByType<DramaInputManager>(FindObjectsInactive.Include);
+            if (manager == null) return;
+
+            manager.UnlockWordInternal(pinyin);
+        }
+
+        // 真正干活的部分：找出同拼音词条，全部设为已解锁，并弹一次 TextWords 提示
+        private void UnlockWordInternal(string pinyin)
+        {
+            Transform textRoot = transform.Find("TextOfficials");
+            if (textRoot == null) return;
+
+            List<DramaWordEntry> matches = new List<DramaWordEntry>();
+            string chinese = pinyin;
+
+            foreach (Transform group in textRoot)
+            {
+                foreach (Transform child in group)
+                {
+                    DramaWordEntry word = child.GetComponent<DramaWordEntry>();
+                    if (word == null) continue;
+                    if (GetPinyin(child.name) != pinyin) continue;
+
+                    matches.Add(word);
+
+                    TMP_Text label = child.GetComponent<TMP_Text>();
+                    if (label != null) chinese = label.text; // 提示里显示中文名
+                }
+            }
+
+            if (matches.Count == 0) return;
+
+            // 已经解锁过就直接返回，避免每次翻页/每只怪都重复弹提示
+            foreach (DramaWordEntry word in matches)
+            {
+                if (word.unlocked) return;
+            }
+
+            foreach (DramaWordEntry word in matches)
+            {
+                word.unlocked = true;
+            }
+
+            // 弹 TextWords 提示，显示效果和 TextScceed / TextRepeat 完全一样
+            if (TabletLineManager.instance != null)
+            {
+                TabletLineManager.instance.ShowWordsTip(chinese);
+            }
+        }
+
         // 拼提示框文字：第一行标题，第二行是整本书里所有已解锁词条（中文，逗号隔开）。
         // 不管鼠标指着哪个按钮，内容都一样，平等列出全部已解锁词条。
         private string BuildTooltipText()
@@ -343,6 +398,14 @@ namespace MyGame.UI
         {
             // 翻页时也同步一次，保证新页面用的是最新解锁状态
             SyncUnlockByPinyin();
+
+            // 解锁条件：翻到第一页，就解锁 神 / 人类 / 魔力
+            if (pageIndex == 0)
+            {
+                UnlockWordInternal("shen");
+                UnlockWordInternal("renlei");
+                UnlockWordInternal("moli");
+            }
 
             if (pendingButtons.Count == 0) return;
 

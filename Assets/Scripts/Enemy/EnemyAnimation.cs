@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using MyGame.UI;
 
 public class EnemyAnimation : MonoBehaviour
 {
@@ -22,6 +23,9 @@ public class EnemyAnimation : MonoBehaviour
         {
             anim.SetBool("isAwake",true);
             isAwake= true;
+
+            // 怪物苏醒（播 EnemyAwake）时，解锁书里的"怪物"词条
+            MyGame.UI.DramaInputManager.UnlockWord("guaiwu");
         }
     }
     
@@ -29,6 +33,9 @@ public class EnemyAnimation : MonoBehaviour
     {
         anim.SetBool("isDead", true);
         isDead= true;
+
+        // 怪物被杀死时，解锁书里的"消失"词条
+        MyGame.UI.DramaInputManager.UnlockWord("xiaoshi");
     }
     
     public void BeHurt()

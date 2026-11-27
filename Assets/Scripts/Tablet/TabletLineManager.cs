@@ -1,8 +1,10 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using MyGame.UI;
 
 // 一个技能的答案：技能名 + 需要连出来的边
 [Serializable]
@@ -30,7 +32,7 @@ public class TabletLineManager : MonoBehaviour
     {
         new TabletAnswer()
         {
-            skillName = "飞翔",
+            skillName = "飞行",
             edges = new string[]
             {
                 "Tabletsmall-Tabletbig",
@@ -58,8 +60,33 @@ public class TabletLineManager : MonoBehaviour
     public TMP_Text failText;
     public TMP_Text repeatText;
 
-    [Tooltip("提示文字显示多少秒后自动隐藏")]
+    [Tooltip("词条解锁提示 TextWords，和上面几个用同一套淡入淡出")]
+    public TMP_Text wordsText;
+
+    [Tooltip("提示文字停留多少秒后开始淡出")]
     public float tipShowTime = 2f;
+
+    [Tooltip("淡入淡出各花多少秒")]
+    public float fadeTime = 0.3f;
+
+    // 技能名在 UI 里显示的颜色（青色 #53CEE7）
+    private const string k_skillNameColor = "53CEE7";
+
+    // 三个提示的原始模板文字。Awake 里从 TMP_Text.text 读出来存着，
+    // 每次显示都从模板出发替换 wordsPoint，避免上一次替换后的富文本残留
+    private string successTemplate;
+    private string failTemplate;
+    private string repeatTemplate;
+    private string wordsTemplate;
+
+    // 当前正在跑的那个淡入淡出协程。同时只应该有一个提示在显示
+    private Coroutine currentFadeCo;
+
+    // 词条提示的队列：同一刻解锁多个词条时排队，一个一个放，不叠在一起
+    private Queue<string> wordTipQueue = new Queue<string>();
+
+    // 正在跑"词条提示连播"的那个协程，空表示现在没在放
+    private Coroutine wordTipsCo;
 
     [Header("线的样子")]
     public float lineWidth = 0.08f;
@@ -111,7 +138,20 @@ public class TabletLineManager : MonoBehaviour
 
         CreateBeam();
 
-        // 开局先把提示文字藏起来
+        // 把 Inspector 里填好的原文案存成模板，以后每次替换都从模板出发
+        // 这样即使上一次替换后的富文本残留在 tip.text 里，也不会污染下一次
+        successTemplate = successText != null ? successText.text : "";
+        failTemplate = failText != null ? failText.text : "";
+        repeatTemplate = repeatText != null ? repeatText.text : "";
+        wordsTemplate = wordsText != null ? wordsText.text : "";
+
+        // 兼容旧存档：老版本解锁过的 "飞翔" 统一改叫 "飞行"
+        if (unlockedSkills.Remove("飞翔"))
+        {
+            unlockedSkills.Add("飞行");
+        }
+
+        // 开局先把提示文字藏起来（同时重置 alpha，免得下次淡入时继承上一次的透明度）
         HideAllTips();
     }
 
@@ -276,7 +316,7 @@ public class TabletLineManager : MonoBehaviour
         if (matched == null)
         {
             PlayResultOnAll(false);
-            ShowTip(failText, "连接不对，再试一次吧");
+            ShowTip(failText, null); // 失败提示里没技能名，传 null 就保留原文案
             ClearLine();
             return;
         }
@@ -285,7 +325,7 @@ public class TabletLineManager : MonoBehaviour
         if (IsSkillUnlocked(matched.skillName))
         {
             PlayResultOnAll(false);
-            ShowTip(repeatText, matched.skillName + " 已经解锁过了");
+            ShowTip(repeatText, matched.skillName);
             ClearLine();
             return;
         }
@@ -294,7 +334,7 @@ public class TabletLineManager : MonoBehaviour
         PlayResultOnAll(true);
         unlockedSkills.Add(matched.skillName);
         UnlockSkill(matched.skillName);
-        ShowTip(successText, "解锁技能：" + matched.skillName);
+        ShowTip(successText, matched.skillName);
         ClearLine();
     }
 
@@ -360,34 +400,143 @@ public class TabletLineManager : MonoBehaviour
 
     private void UnlockSkill(string skillName)
     {
-        if (skillName == "飞翔")
+        if (skillName == "飞行" || skillName == "飞翔")
         {
-            // 飞翔还没做，先占个位置
-            Debug.Log("解锁飞翔技能！（以后在这里写真正会飞的功能）", this);
+            // 飞行还没做，先占个位置
+            Debug.Log("解锁飞行技能！（以后在这里写真正会飞的功能）", this);
         }
         else if (skillName == "攻击")
         {
             // 攻击已经写好了，把开关打开就行
             AttactController.attackUnlocked = true;
+
+            // 解锁战斗技能的同时，解锁书里的"战斗"词条
+            MyGame.UI.DramaInputManager.UnlockWord("zhandou");
         }
     }
 
-    private void ShowTip(TMP_Text tip, string message)
+    // 词条解锁提示：给 DramaInputManager 调的公开入口。
+    // 同一刻来多个就排队，前一个淡入淡出播完，才播下一个
+    public void ShowWordsTip(string wordName)
+    {
+        if (wordsText == null) return;
+
+        wordTipQueue.Enqueue(wordName);
+
+        if (wordTipsCo == null)
+        {
+            wordTipsCo = StartCoroutine(ShowWordTipsCo());
+        }
+    }
+
+    // 依次播队列里的词条提示
+    private IEnumerator ShowWordTipsCo()
+    {
+        while (wordTipQueue.Count > 0)
+        {
+            string wordName = wordTipQueue.Dequeue();
+
+            // 把模板里的 wordsPoint 换成带颜色 #53CEE7 的中文词条名
+            wordsText.text = wordsTemplate.Replace(
+                "wordsPoint",
+                $"<color=#{k_skillNameColor}>{wordName}</color>");
+
+            // 播一次完整的淡入淡出；yield return 另一个协程 = 等它跑完再往下走
+            yield return FadeTipCo(wordsText);
+        }
+
+        wordTipsCo = null;
+    }
+
+    // skillName 为 null = 失败提示，直接用原文案；
+    // 否则把原文案里的 wordsPoint 替换成带青色的技能名（TMP 富文本）
+    private void ShowTip(TMP_Text tip, string skillName)
     {
         if (tip == null) return;
 
-        tip.text = message;
+        string template = GetTemplateFor(tip);
+        string display = template;
+
+        if (!string.IsNullOrEmpty(skillName))
+        {
+            display = display.Replace(
+                "wordsPoint",
+                $"<color=#{k_skillNameColor}>{skillName}</color>");
+        }
+
+        tip.text = display;
+
+        // 上一个提示还没淡出完的话先停掉，免得重叠
+        if (currentFadeCo != null) StopCoroutine(currentFadeCo);
+        currentFadeCo = StartCoroutine(FadeTipCo(tip));
+    }
+
+    private string GetTemplateFor(TMP_Text tip)
+    {
+        if (tip == successText) return successTemplate;
+        if (tip == failText) return failTemplate;
+        if (tip == repeatText) return repeatTemplate;
+        if (tip == wordsText) return wordsTemplate;
+        return tip.text;
+    }
+
+    // 协程：先淡入 → 停留 → 淡出，然后自动隐藏
+    // 一句话理解协程：就是一个能"暂停"的函数，yield return null 等下一帧再跑
+    private IEnumerator FadeTipCo(TMP_Text tip)
+    {
+        SetAlpha(tip, 0f);
         tip.gameObject.SetActive(true);
 
-        // 先取消上一次还没执行的隐藏，避免新提示被提前藏掉
-        CancelInvoke(nameof(HideAllTips));
-        Invoke(nameof(HideAllTips), tipShowTime);
+        // 淡入：从 0 跑到 1
+        // 用 unscaledDeltaTime / WaitForSecondsRealtime，开书暂停 (timeScale = 0) 时提示也能正常播
+        float t = 0f;
+        while (t < fadeTime)
+        {
+            t += Time.unscaledDeltaTime;
+            SetAlpha(tip, Mathf.Clamp01(t / fadeTime));
+            yield return null; // 等下一帧
+        }
+
+        // 停留不动（同样用真实时间，暂停时也会计时）
+        yield return new WaitForSecondsRealtime(tipShowTime);
+
+        // 淡出：从 1 跑到 0
+        t = 0f;
+        while (t < fadeTime)
+        {
+            t += Time.unscaledDeltaTime;
+            SetAlpha(tip, 1f - Mathf.Clamp01(t / fadeTime));
+            yield return null;
+        }
+
+        tip.gameObject.SetActive(false);
+        SetAlpha(tip, 1f); // 重置 alpha，下次淡入从 0 覆盖就行
+
+        if (currentFadeCo != null) currentFadeCo = null;
+    }
+
+    private void SetAlpha(TMP_Text tip, float a)
+    {
+        Color c = tip.color;
+        c.a = a;
+        tip.color = c;
     }
 
     private void HideAllTips()
     {
-        if (successText != null) successText.gameObject.SetActive(false);
-        if (failText != null) failText.gameObject.SetActive(false);
-        if (repeatText != null) repeatText.gameObject.SetActive(false);
+        SetTipInvisible(successText);
+        SetTipInvisible(failText);
+        SetTipInvisible(repeatText);
+        SetTipInvisible(wordsText);
+    }
+
+    private void SetTipInvisible(TMP_Text tip)
+    {
+        if (tip == null) return;
+
+        Color c = tip.color;
+        c.a = 1f; // 重置 alpha，避免下次 SetActive(true) 时继承透明状态
+        tip.color = c;
+        tip.gameObject.SetActive(false);
     }
 }
